@@ -31,5 +31,6 @@
 
 ## 実行結果
 実行すると検出したログファイルのファイルパスが表示されます．
-![image](https://github.com/user-attachments/assets/33d22000-86a7-44e5-9381-c222b16c116e)
+![image](https://github.com/user-attachments/assets/bef833dd-909c-4e70-b1ee-15a8905ec0f4)
+
 
