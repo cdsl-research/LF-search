@@ -1,0 +1,61 @@
+import os
+import signal
+from contextlib import contextmanager
+
+class TimeoutException(Exception):
+    """タイムアウト例外クラス"""
+    pass
+
+@contextmanager
+def time_limit(seconds):
+    """
+    処理時間を制限するコンテキストマネージャ
+    
+    Args:
+        seconds (int): タイムアウト秒数
+    """
+    def signal_handler(signum, frame):
+        raise TimeoutException("Timeout")
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+
+def is_non_log_extension(file_path):
+    """
+    ファイルが非ログ拡張子かどうかを判定します。
+    
+    Args:
+        file_path (str): ファイルパス
+        
+    Returns:
+        bool: 非ログ拡張子の場合True
+    """
+    non_log_extensions = {
+        # システム・ライブラリファイル
+        '.so', '.bin', '.db', '.service', '.wants', '.d', 
+        '.successful', '.target', '.lock',
+        
+        # プログラミング関連
+        '.pm', '.pl', '.py', '.cgi', '.pod', '.ix',
+        
+        # ドキュメント関連
+        '.md', '.html',
+        '.copyright', '.md5sums', '.shlibs', '.triggers',
+        '.symbols', '.templates', '.postinst', '.postrm',
+        '.preinst', '.prerm', '.config', '.ini',
+        
+        # 圧縮・アーカイブ
+        '.gz', '.zip', '.tar', '.bz2', '.xz',
+        
+        # メディア・データ
+        '.gif', '.png', '.jpg', '.jpeg', '.ico',
+        '.csv', '.def', '.dic',
+        
+        # その他設定ファイル
+        '.sources', '.fallback', '.conffiles'
+    }
+    _, ext = os.path.splitext(file_path)
+    return ext.lower() in non_log_extensions
