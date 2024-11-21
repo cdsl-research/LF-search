@@ -1,6 +1,9 @@
+
+# main.py
+```python
 import os
 import time
-from src.file_processor import read_paths_file, process_paths
+from src.file_processor import scan_directory, process_paths
 from src.utils import time_limit, TimeoutException
 
 def main():
@@ -12,20 +15,29 @@ def main():
         exit(1)
 
     if len(os.sys.argv) != 2:
-        print("使用方法: python3 script.py <paths_file>")
+        print("使用方法: python3 script.py <directory>")
         exit(1)
 
-    paths_file = os.sys.argv[1]
-    if not os.path.exists(paths_file):
-        print(f"ファイルが見つかりません: {paths_file}")
+    target_dir = os.sys.argv[1]
+    if not os.path.exists(target_dir):
+        print(f"ディレクトリが見つかりません: {target_dir}")
+        exit(1)
+    
+    if not os.path.isdir(target_dir):
+        print(f"指定されたパスはディレクトリではありません: {target_dir}")
         exit(1)
 
+    print(f"スキャン開始: {target_dir}")
     start_time = time.time()
-    valid_paths, extension_filtered, empty_filtered = read_paths_file(paths_file)
+    
+    valid_paths, extension_filtered, empty_filtered = scan_directory(target_dir)
     
     if not valid_paths:
-        print("有効なパスがありません")
+        print("処理対象のファイルが見つかりません")
         exit(1)
+    
+    print(f"\n処理対象: {len(valid_paths)}ファイル")
+    print(f"除外: 拡張子フィルタ {extension_filtered}件, 空/リンク {empty_filtered}件")
     
     try:
         with time_limit(600):
@@ -34,6 +46,9 @@ def main():
         print("\n全体処理タイムアウト")
     except KeyboardInterrupt:
         print("\n中断されました")
+    finally:
+        elapsed_time = time.time() - start_time
+        print(f"\n処理時間: {elapsed_time:.1f}秒")
 
 if __name__ == "__main__":
     main()
